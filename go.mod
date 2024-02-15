@@ -1,3 +1,3 @@
-module SecureGoComm
+module github.com/tesla59/shepherd
 
-go 1.21.6
+go 1.22.0
