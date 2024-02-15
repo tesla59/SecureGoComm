@@ -14,7 +14,7 @@ const (
 )
 
 func main() {
-	l, err := net.Listen(CONN_PROTO, CONN_HOST+":"+CONN_PORT)
+	l, err := net.Listen(CONN_PROTO, fmt.Sprintf("%s:%s", CONN_HOST, CONN_PORT))
 	log.Println("Server Started")
 	if err != nil {
 		log.Fatal(err)
