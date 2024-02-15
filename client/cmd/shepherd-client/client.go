@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
 	"os"
 )
@@ -17,12 +17,14 @@ const (
 func main() {
 	conn, err := net.Dial(CONN_PROTO, fmt.Sprintf("%s:%s", CONN_HOST, CONN_PORT))
 	if err != nil {
-		log.Fatal(err)
+		slog.Error(err.Error())
 		return
 	}
 	defer conn.Close()
 
-	log.Println("Connection established with server")
+	slog.SetDefault(slog.With("remote", conn.RemoteAddr()))
+
+	slog.Info("Connection established with server")
 
 	// reader for reading input from the user
 	// rw for reading and writing to the server
@@ -32,18 +34,18 @@ func main() {
 		fmt.Printf("~ ")
 		text, err := reader.ReadString('\n')
 		if err != nil {
-			log.Fatal(err)
-			return
+			slog.Warn(err.Error())
+			os.Exit(1)
 		}
 		_, err = rw.WriteString(text)
 		if err != nil {
-			log.Fatal(err)
-			return
+			slog.Error(err.Error())
+			os.Exit(1)
 		}
 		err = rw.Flush()
 		if err != nil {
-			log.Fatal(err)
-			return
+			slog.Error(err.Error())
+			os.Exit(1)
 		}
 	}
 }
