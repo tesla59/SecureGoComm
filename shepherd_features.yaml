@@ -1,0 +1,45 @@
+# Shepherd Project Feature Suggestions
+
+project_structure:
+  - client_server_architecture:  # Key design decision
+      - consider_libraries:
+          - "zeromq"
+          - "gRPC"
+          - "MQTT"  # Investigate pros/cons for robot communication
+
+essential_components:
+  - authentication:
+      - mutual_authentication: true
+      - explore:
+          - "certificate-based"
+          - "token-based"
+  - encryption:
+     - algorithms:
+         - "AES-256"
+         - "ChaCha20-Poly1305"
+     - types:
+         - "in-transit"
+         - "at-rest"
+  - message_integrity:
+      - mechanism: "HMAC"
+  - error_handling_logging:
+     - differentiate_errors: "network vs. security"
+     - implement_on:
+         - "robot"
+         - "server"
+
+advanced_features:  # Select a few to focus on
+  - access_control:
+      - fine_grained_permissions: true
+  - intrusion_detection:
+      - approaches:
+          - "pattern_matching"
+          - "anomaly_detection"
+  - key_management:
+      - tools_needed: true
+  - over_the_air_updates:
+      - secure_channel_design: true
+  - failover_mechanisms:
+      - cloud_disconnection_behavior:
+          - "autonomous_mode"
+          - "safe_shutdown"
