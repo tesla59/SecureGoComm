@@ -3,8 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
+	"strings"
 )
 
 const (
@@ -15,16 +16,17 @@ const (
 
 func main() {
 	l, err := net.Listen(CONN_PROTO, fmt.Sprintf("%s:%s", CONN_HOST, CONN_PORT))
-	log.Println("Server Started")
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Setting up listener", "error", err.Error())
 	}
 	defer l.Close()
+
+	slog.Info("Server Started")
 
 	for {
 		conn, err := l.Accept()
 		if err != nil {
-			log.Fatal(err)
+			slog.Error("Accepting connection from client", "error", err.Error(), "client", conn.RemoteAddr())
 		}
 		go handleConn(conn)
 	}
@@ -35,20 +37,18 @@ func handleConn(conn net.Conn) {
 	rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 	_, err := rw.WriteString(fmt.Sprintf("Connection established with %s\n", conn.RemoteAddr().String()))
 	if err != nil {
-		log.Println(err)
-		return
+		slog.Warn("Cannot write initial byte to client", "error", err.Error())
 	}
 	err = rw.Flush()
 	if err != nil {
-		log.Println(err)
-		return
+		slog.Warn("Cannot flush writer to client", "error", err.Error())
 	}
 	for {
 		str, err := rw.ReadString('\n')
 		if err != nil {
-			log.Println(err)
+			slog.Error("Cannot read string from client", "error", err.Error())
 			return
 		}
-		log.Print(str)
+		slog.Info(strings.TrimRight(str, "\n"), "client", conn.RemoteAddr())
 	}
 }
