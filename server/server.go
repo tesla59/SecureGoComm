@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"net"
 )
@@ -31,9 +32,19 @@ func main() {
 
 func handleConn(conn net.Conn) {
 	defer conn.Close()
-	reader := bufio.NewReader(conn)
+	rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
+	_, err := rw.WriteString(fmt.Sprintf("Connection established with %s\n", conn.RemoteAddr().String()))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = rw.Flush()
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	for {
-		str, err := reader.ReadString('\n')
+		str, err := rw.ReadString('\n')
 		if err != nil {
 			log.Println(err)
 			return
