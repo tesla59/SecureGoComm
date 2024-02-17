@@ -16,6 +16,7 @@ const (
 var workerQueue = make(chan *tls.Conn, WORKERS)
 
 func main() {
+	// Get the tls.Config object to establish a secure tcp listener
 	config, err := GetTLSConfig()
 	if err != nil {
 		slog.Error("Getting TLS config", "error", err.Error())
@@ -30,6 +31,7 @@ func main() {
 
 	slog.Info("Server Started")
 
+	// Spawn a pool of workers to handle incoming connections
 	spawnWorker()
 
 	for {
@@ -38,6 +40,8 @@ func main() {
 			slog.Error("Accepting connection from client", "error", err.Error(), "client", conn.RemoteAddr())
 			continue
 		}
+		// Pass the tls.Conn to the workerQueue
+		// The workerQueue is tracked by the goroutines
 		workerQueue <- conn.(*tls.Conn)
 	}
 }

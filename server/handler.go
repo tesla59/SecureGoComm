@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+// handleConn is a function that handles the incoming connection
+// It reads the incoming data from the client and logs it
 func handleConn(conn *tls.Conn) {
 	defer conn.Close()
 	if err := conn.Handshake(); err != nil {
@@ -34,6 +36,9 @@ func handleConn(conn *tls.Conn) {
 	}
 }
 
+// spawnWorker creates a pool of workers to handle incoming connections
+// Which are then passed to the workerQueue
+// workerQueue is tracked by the goroutines and they handle the connections
 func spawnWorker() {
 	for range WORKERS {
 		go func() {

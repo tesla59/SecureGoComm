@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// GetTLSConfig returns a tls.Config object with the server certificate and CA certificate
 func GetTLSConfig() (*tls.Config, error) {
 	cert, err := tls.LoadX509KeyPair("../certificates/server/server.crt", "../certificates/server/server.key")
 	if err != nil {
