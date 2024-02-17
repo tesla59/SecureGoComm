@@ -10,7 +10,7 @@ const (
 	CONN_HOST  = "0.0.0.0"
 	CONN_PORT  = "5202"
 	CONN_PROTO = "tcp"
-	WORKERS = 5
+	WORKERS    = 5
 )
 
 var workerQueue = make(chan *tls.Conn, WORKERS)
@@ -30,9 +30,8 @@ func main() {
 
 	slog.Info("Server Started")
 
-	for range WORKERS {
-		go spawnWorker(workerQueue)
-	}
+	spawnWorker()
+
 	for {
 		conn, err := l.Accept()
 		if err != nil {

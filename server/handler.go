@@ -34,8 +34,12 @@ func handleConn(conn *tls.Conn) {
 	}
 }
 
-func spawnWorker(workerQueue chan *tls.Conn) {
-	for conn := range workerQueue {
-		handleConn(conn)
+func spawnWorker() {
+	for range WORKERS {
+		go func() {
+			for conn := range workerQueue {
+				handleConn(conn)
+			}
+		}()
 	}
 }
