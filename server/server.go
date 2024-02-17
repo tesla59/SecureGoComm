@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log/slog"
-	"net"
 	"strings"
 )
 
@@ -41,13 +40,13 @@ func main() {
 			slog.Error("Accepting connection from client", "error", err.Error(), "client", conn.RemoteAddr())
 			continue
 		}
-		go handleConn(conn)
+		go handleConn(conn.(*tls.Conn))
 	}
 }
 
-func handleConn(conn net.Conn) {
+func handleConn(conn *tls.Conn) {
 	defer conn.Close()
-	if err := conn.(*tls.Conn).Handshake(); err != nil {
+	if err := conn.Handshake(); err != nil {
 		slog.Error("Handshaking with client", "error", err.Error())
 		return
 	}
