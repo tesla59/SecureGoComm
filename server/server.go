@@ -41,18 +41,7 @@ func main() {
 			slog.Error("Accepting connection from client", "error", err.Error(), "client", conn.RemoteAddr())
 			continue
 		}
-		// Check for TLS handshake
-		if tlsConn, ok := conn.(*tls.Conn); ok {
-			if tlsConn.ConnectionState().HandshakeComplete {
-				go handleConn(tlsConn)
-			} else {
-				slog.Warn("Wrong TLS connection attempt", "remote address", conn.RemoteAddr())
-				conn.Close()
-			}
-		} else {
-			slog.Warn("Non-TLS connection attempt", "remote address", conn.RemoteAddr())
-			conn.Close()
-		}
+		go handleConn(conn)
 	}
 }
 
