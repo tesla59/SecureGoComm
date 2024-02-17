@@ -47,6 +47,10 @@ func main() {
 
 func handleConn(conn net.Conn) {
 	defer conn.Close()
+	if err := conn.(*tls.Conn).Handshake(); err != nil {
+		slog.Error("Handshaking with client", "error", err.Error())
+		return
+	}
 	slog.Info("Connection established with client", "client", conn.RemoteAddr())
 	rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 	_, err := rw.WriteString(fmt.Sprintf("Connection established with %s\n", conn.RemoteAddr().String()))
