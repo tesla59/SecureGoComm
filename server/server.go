@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/tls"
 	"fmt"
 	"log/slog"
 	"net"
@@ -15,7 +16,18 @@ const (
 )
 
 func main() {
-	l, err := net.Listen(CONN_PROTO, fmt.Sprintf("%s:%s", CONN_HOST, CONN_PORT))
+	cert, err := tls.LoadX509KeyPair("../certificates/server/server.crt", "../certificates/server/server.key")
+	if err != nil {
+		slog.Error("Loading server certificate", "error", err.Error())
+		return
+	}
+
+	config := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+	}
+
+	l, err := tls.Listen(CONN_PROTO, fmt.Sprintf("%s:%s", CONN_HOST, CONN_PORT), config)
 	if err != nil {
 		slog.Error("Setting up listener", "error", err.Error())
 	}
@@ -27,13 +39,26 @@ func main() {
 		conn, err := l.Accept()
 		if err != nil {
 			slog.Error("Accepting connection from client", "error", err.Error(), "client", conn.RemoteAddr())
+			continue
 		}
-		go handleConn(conn)
+		// Check for TLS handshake
+		if tlsConn, ok := conn.(*tls.Conn); ok {
+			if tlsConn.ConnectionState().HandshakeComplete {
+				go handleConn(tlsConn)
+			} else {
+				slog.Warn("Wrong TLS connection attempt", "remote address", conn.RemoteAddr())
+				conn.Close()
+			}
+		} else {
+			slog.Warn("Non-TLS connection attempt", "remote address", conn.RemoteAddr())
+			conn.Close()
+		}
 	}
 }
 
 func handleConn(conn net.Conn) {
 	defer conn.Close()
+	slog.Info("Connection established with client", "client", conn.RemoteAddr())
 	rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 	_, err := rw.WriteString(fmt.Sprintf("Connection established with %s\n", conn.RemoteAddr().String()))
 	if err != nil {
