@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
 )
 
@@ -20,10 +22,25 @@ func main() {
 		slog.Error("Loading server certificate", "error", err.Error())
 		return
 	}
+	caCert, err := os.ReadFile("../certificates/ca/ca.crt")
+	if err != nil {
+		slog.Error("Loading CA certificate", "error", err.Error())
+		return
+	}
+	caCertPool := x509.NewCertPool()
+	if !caCertPool.AppendCertsFromPEM(caCert) {
+		slog.Error("Couldn't add CA cert to pool", "error", err.Error())
+		return
+	}
 
 	config := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 		ClientAuth:   tls.RequireAndVerifyClientCert,
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
+		},
+		ClientCAs: caCertPool,
 	}
 
 	l, err := tls.Listen(CONN_PROTO, fmt.Sprintf("%s:%s", CONN_HOST, CONN_PORT), config)
