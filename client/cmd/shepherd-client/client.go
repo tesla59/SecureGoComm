@@ -6,16 +6,12 @@ import (
 	"log/slog"
 	"net"
 	"os"
-)
 
-const (
-	CONN_HOST  = "0.0.0.0"
-	CONN_PORT  = "5202"
-	CONN_PROTO = "tcp"
+	"github.com/tesla59/shepherd/common"
 )
 
 func main() {
-	conn, err := net.Dial(CONN_PROTO, fmt.Sprintf("%s:%s", CONN_HOST, CONN_PORT))
+	conn, err := net.Dial(common.CONN_PROTO, common.CONN_ADDR)
 	if err != nil {
 		slog.Error(err.Error())
 		return

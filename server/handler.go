@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+
+	"github.com/tesla59/shepherd/common"
 )
 
 // handleConn is a function that handles the incoming connection
@@ -40,7 +42,7 @@ func handleConn(conn *tls.Conn) {
 // Which are then passed to the workerQueue
 // workerQueue is tracked by the goroutines and they handle the connections
 func spawnWorker() {
-	for range WORKERS {
+	for range common.SERVER_WORKERS {
 		go func() {
 			for conn := range workerQueue {
 				handleConn(conn)

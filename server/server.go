@@ -2,18 +2,12 @@ package main
 
 import (
 	"crypto/tls"
-	"fmt"
 	"log/slog"
+
+	"github.com/tesla59/shepherd/common"
 )
 
-const (
-	CONN_HOST  = "0.0.0.0"
-	CONN_PORT  = "5202"
-	CONN_PROTO = "tcp"
-	WORKERS    = 5
-)
-
-var workerQueue = make(chan *tls.Conn, WORKERS)
+var workerQueue = make(chan *tls.Conn, common.SERVER_WORKERS)
 
 func main() {
 	// Get the tls.Config object to establish a secure tcp listener
@@ -23,7 +17,7 @@ func main() {
 		return
 	}
 
-	l, err := tls.Listen(CONN_PROTO, fmt.Sprintf("%s:%s", CONN_HOST, CONN_PORT), config)
+	l, err := tls.Listen(common.CONN_PROTO, common.CONN_ADDR, config)
 	if err != nil {
 		slog.Error("Setting up listener", "error", err.Error())
 	}
