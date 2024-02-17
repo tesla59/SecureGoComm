@@ -38,7 +38,6 @@ func main() {
 			slog.Error("Accepting connection from client", "error", err.Error(), "client", conn.RemoteAddr())
 			continue
 		}
-		// go handleConn(conn.(*tls.Conn))
 		workerQueue <- conn.(*tls.Conn)
 	}
 }
